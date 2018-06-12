@@ -18,18 +18,13 @@ class Home extends Component {
   // Fetch API do JavaScript para disparos de requisição e preparar o tratamento
   // Atribui o JSON ao State
   componentDidMount() {
+  //  http://instalura-api.herokuapp.com/api/public/fotos/rafael
     fetch('http://instalura-api.herokuapp.com/api/public/fotos/rafael')
       .then(response => response.json())
       .then(json => this.setState({fotos: json}))
   }
 
   render() {
-
-    const fotos = [
-        {id: 1, usuario: 'fernando'},
-        {id: 2, usuario: 'amanda'},
-        {id: 3, usuario: 'christian'}
-    ];
 
     return (
 
