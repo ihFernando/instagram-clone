@@ -2,6 +2,10 @@
 import React, { Component } from 'react';
 import { Dimensions, StyleSheet, Text, View, Image, FlatList, TouchableOpacity } from 'react-native';
 
+import ParsedText from 'react-native-parsed-text';
+
+import DoubleClick from 'react-native-double-click';
+
 const width = Dimensions.get('screen').width;
 
 /* Main Estrutura */
@@ -22,19 +26,20 @@ class Post extends Component {
   like() {
     const fotoAtualizada = {
       ...this.state.foto,
-      likeada: !this.state.foto.likeada
+      likeada: !this.state.foto.likeada,
+      likers: (!this.state.foto.likeada) ? this.state.foto.likers + 1 : this.state.foto.likers - 1
     }
     this.setState({ foto: fotoAtualizada });
   }
 
   /* Código referente a ação de exibir numero de curtidas */
   exibeCurtida(likers) {
-    if ( likers.length <= 0 )
+    if ( likers <= 0 )
       return;
 
     return(
       <Text style={styles.likes}>
-        {foto.likers.length} {foto.likers.length > 1 ? 'curtidas' : 'curtida'}
+        {likers} {likers > 1 ? 'curtidas' : 'curtida'}
       </Text>
     );
   }
@@ -45,16 +50,24 @@ class Post extends Component {
 
     return (
       <Text style={styles.legenda}>
-        <Text style={styles.legendaBold}>{usuario}</Text> {legenda}
+        <Text style={styles.legendaBold}>{usuario} </Text>
+        <ParsedText
+          parse={
+            [
+              {pattern: /#(\w+)/, style: styles.hashTag}
+            ]
+          }>
+           {legenda}
+        </ParsedText>
       </Text>
     );
   }
 
   /* Exibe data da publicação da foto */
   exibeData(horario) {
-    const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+    const meses = ["Este mês", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     let horarioVetor = horario.split("/");
-    let mes = horarioVetor[1].split("0");
+    let mes = (horarioVetor[1] < 10) ? horarioVetor[1].split("0") : horarioVetor;
     let horarioFinal = horarioVetor[0]+" de "+meses[mes[1]];
 
     if( horario == '' )
@@ -65,7 +78,6 @@ class Post extends Component {
         <Text style={styles.horarioData}>{horarioFinal.toUpperCase()} - </Text> VER TRADUÇÃO
       </Text>
     )
-
   }
 
   render() {
@@ -82,8 +94,12 @@ class Post extends Component {
           <Text>{ foto.loginUsuario }</Text>
         </View>
 
-        <Image source={{ uri: foto.urlFoto }}
-          style={ styles.foto } />
+        <TouchableOpacity onPress={() => {}}>
+          <DoubleClick onClick={(this.like.bind(this))}>
+            <Image source={{ uri: foto.urlFoto }}
+              style={ styles.foto } />
+          </DoubleClick>
+        </TouchableOpacity>
 
         <View style={styles.rodape}>
 
@@ -107,7 +123,7 @@ class Post extends Component {
           </View>
 
           {this.exibeCurtida(foto.likers)}
-          {this.exibeLegenda(foto.loginUsuario, legenda)}
+          {this.exibeLegenda(foto.loginUsuario, foto.comentario)}
           {this.exibeData(foto.horario)}
         </View>
       </View>
@@ -129,6 +145,7 @@ const styles = StyleSheet.create({
 
   legenda: { paddingTop: 10 },
   legendaBold: { fontWeight: 'bold' },
+  hashTag: { color: '#1E296A' },
 
   horario: { paddingTop: 10, color: '#2d2d2d', fontSize: 11 },
   horarioData: { color: '#777' }
